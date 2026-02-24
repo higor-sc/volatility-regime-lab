@@ -22,27 +22,36 @@ End-to-end study/portfolio project for volatility regime detection on financial 
 ## Repository Structure
 
 volatility-regime-lab/
-docker/
-airflow/
-dags/
-mlflow/
-Dockerfile
-data/
-bronze/
-silver/
-gold/
-mlruns/ # MLflow artifacts (ignored by git)
-src/
-ingest/
-transform/
-features/
-modeling/
-frontend/
-app.py
-tests/
-docker-compose.yml
-README.md
-.gitignore
+├── docker/
+│   ├── airflow/
+│   │   └── dags/
+│   └── mlflow/
+│       └── Dockerfile
+├── data/
+│   ├── bronze/
+│   ├── silver/
+│   └── gold/
+├── mlruns/                # MLflow artifacts (ignored by git)
+├── src/
+│   ├── ingest/
+│   ├── transform/
+│   ├── features/
+│   └── modeling/
+├── frontend/
+│   └── app.py
+├── tests/
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+
+Each top-level directory represents a logical layer of the data and ML pipeline.
+The repository is organized to clearly separate infrastructure, data layers, and business logic, following common Data Engineering and MLOps best practices.
+
+| Directory | Description                                                                                                                                                                      |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docker/` | Docker-related configuration for local infrastructure. Contains custom images and settings for **Apache Airflow** (DAGs, scheduler, webserver) and **MLflow** (tracking server). |
+| `src/`    | Core application code organized by responsibility. Includes ingestion logic, data transformations, feature engineering, and machine learning modeling/scoring.                   |
+| `data/`   | Local Medallion data storage. Structured into **Bronze** (raw market data), **Silver** (cleaned data and returns), and **Gold** (features and regime outputs).                   |
 
 ## Data Layers (Medallion)
 - **Bronze**: raw OHLCV downloaded from Yahoo Finance
@@ -62,14 +71,14 @@ README.md
 ### 1) Start services
 docker compose up -d --build
 
-Airflow UI: http://localhost:8080
-MLflow UI: http://localhost:5000
+- Airflow UI: http://localhost:8080
+- MLflow UI: http://localhost:5000
 
 ### 2) Run the end-to-end pipeline
 Trigger DAG: marketdata_orchestrator
 
 ### 3) Run Dashboard
-pip install streamlit plotly pandas pyarrow
+pip install streamlit plotly pandas pyarrow<br>
 streamlit run frontend/app.py
 
 ## Notes
