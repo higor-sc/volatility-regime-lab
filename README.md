@@ -20,7 +20,7 @@ End-to-end study/portfolio project for volatility regime detection on financial 
 - Streamlit (simple dashboard)
 
 ## Repository Structure
-
+```text
 volatility-regime-lab/
 ├── docker/
 │   ├── airflow/
@@ -43,15 +43,16 @@ volatility-regime-lab/
 ├── docker-compose.yml
 ├── README.md
 └── .gitignore
+```
 
 Each top-level directory represents a logical layer of the data and ML pipeline.
 The repository is organized to clearly separate infrastructure, data layers, and business logic, following common Data Engineering and MLOps best practices.
 
-| Directory | Description                                                                                                                                                                      |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directory | Description |
+| --------- | ----------- |
 | `docker/` | Docker-related configuration for local infrastructure. Contains custom images and settings for **Apache Airflow** (DAGs, scheduler, webserver) and **MLflow** (tracking server). |
-| `src/`    | Core application code organized by responsibility. Includes ingestion logic, data transformations, feature engineering, and machine learning modeling/scoring.                   |
-| `data/`   | Local Medallion data storage. Structured into **Bronze** (raw market data), **Silver** (cleaned data and returns), and **Gold** (features and regime outputs).                   |
+| `src/`    | Core application code organized by responsibility. Includes ingestion logic, data transformations, feature engineering, and machine learning modeling/scoring. |
+| `data/`   | Local Medallion data storage. Structured into **Bronze** (raw market data), **Silver** (cleaned data and returns), and **Gold** (features and regime outputs). |
 
 ## Data Layers (Medallion)
 - **Bronze**: raw OHLCV downloaded from Yahoo Finance
