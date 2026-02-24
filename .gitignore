@@ -1,0 +1,7 @@
+data/
+mlruns/
+airflow_logs/
+__pycache__/
+*.pyc
+.venv/
+.env

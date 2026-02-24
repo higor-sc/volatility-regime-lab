@@ -1,0 +1,67 @@
+services:
+
+  # MLFlow
+  mlflow:
+    container_name: mlflow
+    build: ./docker/mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlruns
+      - ./docker/mlflow:/app
+    environment:
+      MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow:5000,localhost:5000,localhost:*"
+
+  # BD Log AirFlow
+  postgres:
+    image: postgres:16
+    container_name: airflow-postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow_pgdata:/var/lib/postgresql/data
+
+  # AirFlow Web Server
+  airflow-webserver:
+    build: ./docker/airflow
+    container_name: airflow-webserver
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__SECRET_KEY: "secret_key_1234567890"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker/airflow/dags:/opt/airflow/dags
+      - ./airflow_logs:/opt/airflow/logs
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./mlruns:/mlruns
+    command: webserver
+
+  # AirFlow Scheduler
+  airflow-scheduler:
+    build: ./docker/airflow
+    container_name: airflow-scheduler
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__SECRET_KEY: "secret_key_1234567890"
+    volumes:
+      - ./docker/airflow/dags:/opt/airflow/dags
+      - ./airflow_logs:/opt/airflow/logs
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./mlruns:/mlruns
+    command: scheduler
+
+volumes:
+  airflow_pgdata:

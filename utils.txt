@@ -1,0 +1,104 @@
+##############################
+1) Subir container
+docker compose up -d --build
+docker compose up -d
+
+##############################
+2) Subir Postgres + Airflow
+docker compose up -d postgres airflow-webserver airflow-scheduler
+
+2.1) O que é o Postgres no Airflow?
+O Postgres do Airflow serve somente para:
+- estado dos DAGs
+- histórico de execuções
+- status das tasks (success / failed / retry)
+- logs de metadados
+- usuários, permissões, conexões
+Esse banco é chamado de: Airflow Metadata Database
+
+Sem esse banco:
+- o Airflow não funciona
+- ele não sabe o que já rodou, quando, nem o que falta rodar
+
+2.2) airflow-webserver: o “painel de controle”
+serve a UI (localhost:8080)
+permite:
+- visualizar DAGs
+- acionar execuções
+- ver logs
+- administrar usuários
+
+Ele não executa tasks.
+Pensa nele como: o dashboard + API do Airflow
+
+2.3) airflow-scheduler: o “cérebro”
+fica verificando:
+- quais DAGs devem rodar
+- quais tasks estão prontas
+
+dispara a execução das tasks
+
+Sem o scheduler:
+o DAG aparece na UI
+mas nunca roda sozinho
+
+| Componente              | Serve para               |
+| ----------------------- | ------------------------ |
+| Docker                  | Isolar serviços          |
+| WSL2                    | VM única para Docker     |
+| docker-compose          | Orquestrar containers    |
+| Postgres (Airflow)      | **Metadados do Airflow** |
+| Airflow Webserver       | UI + API                 |
+| Airflow Scheduler       | Decide e executa DAGs    |
+| data/bronze/silver/gold | **Seus dados reais**     |
+| MLflow                  | Experimentos + modelos   |
+
+##############################
+3) Inicializar o banco do Airflow
+docker compose run --rm airflow-webserver airflow db init
+
+criar usuário admin
+docker compose run --rm airflow-webserver airflow users create \
+  --username admin --password admin \
+  --firstname Admin --lastname User \
+  --role Admin --email admin@example.com
+
+reinicie os serviços
+docker compose restart airflow-webserver airflow-scheduler
+
+##############################
+4) Docker comandos
+
+docker compose stop # parar sem apagar nada
+docker compose start # retorna após stop
+
+docker compose down # desligar e remover containers (mantém volumes)
+docker compose up -d # retorna após down
+
+docker compose up -d --force-recreate airflow-webserver airflow-scheduler
+docker compose up -d --force-recreate mlflow
+
+docker compose ps # verifica o que está rodando
+
+docker compose exec airflow-webserver python -c "import joblib, sklearn, mlflow; print('ok')"
+docker compose exec airflow-scheduler python -c "import joblib, sklearn, mlflow; print('ok')"
+
+docker compose exec airflow-webserver python -c "import mlflow; mlflow.set_tracking_uri('http://mlflow:5000'); mlflow.set_experiment('test'); print('ok')"
+
+##############################
+5) SRC Structure
+
+| Camada    | Responsabilidade     | DAG                  |
+| --------- | -------------------- | -------------------- |
+| Ingest    | puxar dados brutos   | `*_bronze_ingest`    |
+| Transform | limpeza + returns    | `*_silver_transform` |
+| Features  | variáveis analíticas | `*_gold_features`    |
+| Modeling  | treino + score       | `*_train`, `*_score` |
+
+##############################
+6) Front End
+streamlit run frontend/app.py
+
+##############################
+7) Git Hub
+
