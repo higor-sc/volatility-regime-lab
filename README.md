@@ -25,6 +25,8 @@ volatility-regime-lab/
 ├── docker/
 │   ├── airflow/
 │   │   └── dags/
+│   │   └── Dockerfile
+│   │   └── requirements.txt
 │   └── mlflow/
 │       └── Dockerfile
 ├── data/
